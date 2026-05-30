@@ -1,0 +1,1188 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>양주사업소 생산 대시보드 샘플</title>
+  <style>
+    :root {
+      --bg: #f4f6f8;
+      --panel: #ffffff;
+      --line: #d9e0e7;
+      --text: #17202a;
+      --muted: #667481;
+      --blue: #1f6fb2;
+      --green: #18855b;
+      --amber: #b7791f;
+      --red: #c2413a;
+      --actual-over: #1f6fb2;
+      --actual-under: #c2413a;
+      --ink: #263442;
+      --soft-blue: #e8f2fb;
+      --soft-green: #e8f6ef;
+      --soft-amber: #fff4d8;
+      --soft-red: #fdeceb;
+      --radius: 8px;
+      --shadow: 0 1px 2px rgba(15, 23, 42, .08);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: "Malgun Gothic", "Apple SD Gothic Neo", Arial, sans-serif;
+      font-size: 14px;
+      letter-spacing: 0;
+    }
+
+    button, input, select, textarea {
+      font: inherit;
+    }
+
+    .app {
+      min-height: 100vh;
+      display: grid;
+      grid-template-columns: 248px 1fr;
+    }
+
+    aside {
+      background: #1e2a36;
+      color: #eef4f8;
+      padding: 20px 16px;
+    }
+
+    .brand {
+      display: grid;
+      gap: 10px;
+      margin-bottom: 22px;
+      font-size: 18px;
+      font-weight: 700;
+    }
+
+    .brand-logo {
+      width: 118px;
+      height: auto;
+      display: block;
+    }
+
+    .nav-title {
+      margin: 20px 0 8px;
+      color: #9fb0bf;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .nav-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      width: 100%;
+      border: 0;
+      padding: 10px 11px;
+      border-radius: 6px;
+      background: transparent;
+      color: #dce7ef;
+      margin-bottom: 4px;
+      cursor: pointer;
+      font: inherit;
+      text-align: left;
+    }
+
+    .nav-item.active {
+      background: #2f81bf;
+      color: #fff;
+    }
+
+    .nav-badge {
+      min-width: 22px;
+      height: 22px;
+      display: inline-grid;
+      place-items: center;
+      border-radius: 999px;
+      background: rgba(255,255,255,.16);
+      font-size: 12px;
+    }
+
+    main {
+      min-width: 0;
+      padding: 18px 22px 28px;
+    }
+
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+
+    h1 {
+      margin: 0 0 6px;
+      font-size: 24px;
+      line-height: 1.25;
+    }
+
+    .subtitle {
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .toolbar {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .select, .date-input {
+      height: 36px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: #fff;
+      padding: 0 10px;
+      color: var(--ink);
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      height: 36px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: #fff;
+      color: var(--ink);
+      padding: 0 12px;
+      cursor: pointer;
+      font-weight: 700;
+      text-decoration: none;
+    }
+
+    .btn.primary {
+      background: var(--blue);
+      color: #fff;
+      border-color: var(--blue);
+    }
+
+    .btn.secondary {
+      background: #eef3f7;
+    }
+
+    .btn.small {
+      height: 30px;
+      padding: 0 9px;
+      font-size: 12px;
+    }
+
+    .btn.disabled {
+      pointer-events: none;
+      color: #9aa6b2;
+      background: #eef1f4;
+      border-color: #d7dee5;
+    }
+
+    .grid {
+      display: grid;
+      gap: 14px;
+    }
+
+    .kpi-grid {
+      grid-template-columns: repeat(4, minmax(160px, 1fr));
+      margin-bottom: 14px;
+    }
+
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+    }
+
+    .kpi {
+      padding: 14px;
+      min-height: 104px;
+      display: grid;
+      gap: 8px;
+    }
+
+    .kpi-label {
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .kpi-value {
+      font-size: 25px;
+      font-weight: 800;
+      line-height: 1.15;
+      white-space: nowrap;
+    }
+
+    .kpi-note {
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .status {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 44px;
+      height: 24px;
+      border-radius: 999px;
+      padding: 0 9px;
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .status.ok { color: var(--green); background: var(--soft-green); }
+    .status.warn { color: var(--amber); background: var(--soft-amber); }
+    .status.danger { color: var(--red); background: var(--soft-red); }
+
+    .content-grid {
+      grid-template-columns: minmax(0, 1fr);
+      align-items: start;
+    }
+
+    .section {
+      padding: 14px;
+    }
+
+    .section-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    h2 {
+      margin: 0;
+      font-size: 17px;
+    }
+
+    .helper {
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .table-wrap {
+      overflow-x: auto;
+      border: 1px solid var(--line);
+      border-radius: 7px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 780px;
+      background: #fff;
+    }
+
+    th, td {
+      border-bottom: 1px solid var(--line);
+      padding: 9px 10px;
+      text-align: right;
+      white-space: nowrap;
+    }
+
+    th {
+      background: #edf2f6;
+      color: #364756;
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    td:first-child, td:nth-child(2), th:first-child, th:nth-child(2) {
+      text-align: left;
+    }
+
+    tr:last-child td { border-bottom: 0; }
+
+    .group-row td {
+      background: #dfeaf3;
+      color: #263442;
+      font-weight: 900;
+      text-align: left;
+      border-top: 2px solid #b8c8d6;
+      border-bottom: 1px solid #b8c8d6;
+    }
+
+    .group-row.cp1 td {
+      background: #e7f1fa;
+    }
+
+    .group-row.cp2 td {
+      background: #eef6ed;
+    }
+
+    .group-row.sp td {
+      background: #fff3d8;
+    }
+
+    .line-cell {
+      font-weight: 800;
+      border-left: 4px solid transparent;
+    }
+
+    .line-cell.cp1 {
+      border-left-color: var(--blue);
+    }
+
+    .line-cell.cp2 {
+      border-left-color: var(--green);
+    }
+
+    .line-cell.sp {
+      border-left-color: var(--amber);
+    }
+
+    .note-cell {
+      min-width: 260px;
+      text-align: left;
+    }
+
+    .row-note {
+      display: inline-block;
+      max-width: 260px;
+      margin-left: 8px;
+      color: #405160;
+      font-size: 12px;
+      vertical-align: middle;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .row-note.empty {
+      color: var(--muted);
+    }
+
+    .bar-cell {
+      min-width: 170px;
+    }
+
+    .bar-track {
+      height: 10px;
+      border-radius: 999px;
+      background: #e7edf2;
+      overflow: hidden;
+      margin-top: 4px;
+    }
+
+    .bar {
+      height: 100%;
+      width: 0;
+      background: var(--green);
+    }
+
+    .bar.warn { background: var(--amber); }
+    .bar.danger { background: var(--red); }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .field {
+      display: grid;
+      gap: 5px;
+    }
+
+    .field.full { grid-column: 1 / -1; }
+
+    label {
+      color: #405160;
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    input, select, textarea {
+      width: 100%;
+      min-height: 36px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: #fff;
+      padding: 8px 10px;
+      color: var(--text);
+    }
+
+    textarea {
+      min-height: 78px;
+      resize: vertical;
+    }
+
+    .form-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .notice-list {
+      display: grid;
+      gap: 8px;
+    }
+
+    .notice {
+      border: 1px solid var(--line);
+      border-left: 4px solid var(--amber);
+      border-radius: 7px;
+      padding: 10px;
+      background: #fff;
+    }
+
+    .notice.done { border-left-color: var(--green); }
+    .notice.check { border-left-color: var(--red); }
+
+    .notice-top {
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 5px;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .notice-body {
+      line-height: 1.45;
+    }
+
+    .two-col {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      margin-top: 14px;
+    }
+
+    .weekly-period-grid {
+      grid-template-columns: minmax(0, 1.05fr) minmax(420px, .95fr);
+      align-items: stretch;
+    }
+
+    .line-summary {
+      display: grid;
+      gap: 9px;
+    }
+
+    .line-row {
+      display: grid;
+      grid-template-columns: 92px 1fr 72px;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .line-name {
+      font-weight: 800;
+      color: #344556;
+    }
+
+    .line-percent {
+      text-align: right;
+      font-weight: 800;
+    }
+
+    .muted {
+      color: var(--muted);
+    }
+
+    .actual-over {
+      color: var(--actual-over);
+      font-weight: 800;
+    }
+
+    .actual-under {
+      color: var(--actual-under);
+      font-weight: 800;
+    }
+
+    .actual-same {
+      color: var(--text);
+      font-weight: 800;
+    }
+
+    .productivity-pill {
+      min-width: 132px;
+    }
+
+    .iot-list {
+      display: grid;
+      gap: 8px;
+    }
+
+    .iot-summary {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: center;
+      margin-bottom: 10px;
+      padding: 10px;
+      border: 1px solid var(--line);
+      border-radius: 7px;
+      background: #f7fafc;
+    }
+
+    .iot-count {
+      font-size: 20px;
+      font-weight: 800;
+      color: var(--red);
+    }
+
+    .iot-equipment {
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.4;
+      text-align: right;
+    }
+
+    .iot-alert {
+      display: grid;
+      grid-template-columns: 74px 1fr auto;
+      gap: 10px;
+      align-items: center;
+      border: 1px solid var(--line);
+      border-left: 4px solid var(--amber);
+      border-radius: 7px;
+      padding: 10px;
+      background: #fff;
+    }
+
+    .iot-alert.danger { border-left-color: var(--red); }
+    .iot-alert.ok { border-left-color: var(--green); }
+
+    .iot-time {
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .iot-title {
+      font-weight: 800;
+      margin-bottom: 3px;
+    }
+
+    .iot-detail {
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.35;
+    }
+
+    .weekly-chart {
+      width: 100%;
+      height: 280px;
+      border: 1px solid var(--line);
+      border-radius: 7px;
+      background: #fff;
+      overflow: hidden;
+    }
+
+    .chart-legend {
+      display: flex;
+      gap: 14px;
+      align-items: center;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 800;
+      margin-bottom: 10px;
+    }
+
+    .legend-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .legend-swatch {
+      width: 16px;
+      height: 8px;
+      border-radius: 999px;
+      background: var(--blue);
+    }
+
+    .legend-line {
+      width: 18px;
+      height: 3px;
+      border-radius: 999px;
+      background: var(--green);
+    }
+
+    @media (max-width: 1120px) {
+      .app { grid-template-columns: 1fr; }
+      aside { display: none; }
+      .content-grid, .two-col, .weekly-period-grid { grid-template-columns: 1fr; }
+      .kpi-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+
+    @media (max-width: 680px) {
+      main { padding: 14px; }
+      .topbar { align-items: flex-start; flex-direction: column; }
+      .toolbar { justify-content: flex-start; }
+      .kpi-grid, .form-grid { grid-template-columns: 1fr; }
+      .kpi-value { font-size: 22px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <aside>
+      <div class="brand">
+        <img class="brand-logo" src="삼표로고.svg" alt="삼표">
+        <div>생산 대시보드</div>
+      </div>
+
+      <div class="nav-title">사업소</div>
+      <button class="nav-item active" type="button" data-site="양주"><span>양주</span><span class="nav-badge">8</span></button>
+      <button class="nav-item" type="button" data-site="연천"><span>연천</span></button>
+      <button class="nav-item" type="button" data-site="화성"><span>화성</span></button>
+      <button class="nav-item" type="button" data-site="용인"><span>용인</span></button>
+      <button class="nav-item" type="button" data-site="인천"><span>인천</span></button>
+      <button class="nav-item" type="button" data-site="안성"><span>안성</span></button>
+      <button class="nav-item" type="button" data-site="예산"><span>예산</span></button>
+    </aside>
+
+    <main>
+      <div class="topbar">
+        <div>
+          <h1 id="pageTitle">양주사업소 생산 대시보드</h1>
+          <div class="subtitle">초기 버전은 사업소 담당자가 웹에서 직접 입력하고, 다음 업데이트에서 회사 프로그램 연동을 진행합니다.</div>
+        </div>
+        <div class="toolbar">
+          <input id="dashboardDate" class="date-input" type="date" value="2026-05-31">
+          <a class="btn primary" href="yangju_production_input.html">생산실적 입력</a>
+          <button class="btn secondary" id="resetBtn" type="button">샘플 초기화</button>
+        </div>
+      </div>
+
+      <section class="grid kpi-grid" aria-label="핵심 지표">
+        <div class="card kpi">
+          <div class="kpi-label">생산량</div>
+          <div class="kpi-value"><span id="kpiActual">9,586</span>㎥</div>
+          <div class="kpi-note">계획 <span id="kpiPlan">9,800</span>㎥ · 달성률 <span id="kpiRate">97.8%</span></div>
+        </div>
+        <div class="card kpi">
+          <div class="kpi-label">평균 생산성</div>
+          <div class="kpi-value" id="kpiProductivity">512 ㎥/hr</div>
+          <div class="kpi-note">계획 대비 <span id="kpiProductivityRate">91.6%</span></div>
+        </div>
+        <div class="card kpi">
+          <div class="kpi-label">평균 가동시간</div>
+          <div class="kpi-value" id="kpiRunTime">18.7h</div>
+          <div class="kpi-note">설비 평균 기준</div>
+        </div>
+        <div class="card kpi">
+          <div class="kpi-label">Fault</div>
+          <div class="kpi-value" id="kpiFault">5건</div>
+          <div class="kpi-note"><span class="status warn" id="faultStatus">주의</span></div>
+        </div>
+      </section>
+
+      <section class="grid content-grid">
+        <div class="grid">
+          <div class="card section">
+            <div class="section-head">
+              <div>
+                <h2>설비별 생산 현황</h2>
+                <div class="helper">단위: 생산량 ㎥, 생산성 ㎥/hr</div>
+              </div>
+              <span class="status ok" id="totalStatus">정상</span>
+            </div>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>라인</th>
+                    <th>설비</th>
+                    <th>계획</th>
+                    <th>실적</th>
+                    <th>차이</th>
+                    <th>달성률</th>
+                    <th>생산성</th>
+                    <th>가동시간</th>
+                    <th>Fault</th>
+                    <th>특이사항</th>
+                  </tr>
+                </thead>
+                <tbody id="productionBody"></tbody>
+              </table>
+          </div>
+        </div>
+
+          <div class="grid weekly-period-grid">
+            <div class="card section">
+              <div class="section-head">
+                <div>
+                  <h2>주간 생산실적</h2>
+                  <div class="helper">막대는 생산량(㎥), 꺾은선은 생산성(㎥/hr)입니다.</div>
+                </div>
+              </div>
+              <div class="chart-legend">
+                <span class="legend-item"><span class="legend-swatch"></span>생산량(㎥)</span>
+                <span class="legend-item"><span class="legend-line"></span>생산성(㎥/hr)</span>
+              </div>
+              <div class="weekly-chart" id="weeklyChart"></div>
+            </div>
+
+            <div class="card section">
+              <div class="section-head">
+                <div>
+                  <h2>월간 · 년간 생산량</h2>
+                  <div class="helper">현재 입력 실적 기준 샘플 집계</div>
+                </div>
+              </div>
+              <div class="table-wrap">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>구분</th>
+                      <th>계획</th>
+                      <th>실적</th>
+                      <th>달성률</th>
+                      <th>생산성</th>
+                      <th>상태</th>
+                    </tr>
+                  </thead>
+                  <tbody id="periodBody"></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <div class="grid two-col">
+            <div class="card section">
+              <div class="section-head">
+                <h2>IoT 센서 알람</h2>
+                <span class="helper">현장 설치 센서 기준</span>
+              </div>
+              <div class="iot-summary" id="iotSummary"></div>
+              <div class="iot-list" id="iotAlertList"></div>
+            </div>
+
+            <div class="card section">
+              <div class="section-head">
+                <h2>특이사항</h2>
+                <span class="helper">미조치 항목 우선 확인</span>
+              </div>
+              <div class="notice-list" id="noticeList"></div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    const defaultRows = [
+      { line: "CP 1차", machine: "1호기", plan: 1200, actual: 1185, productivity: 535, productivityRate: 93.2, runTime: 19.1, fault: 1 },
+      { line: "CP 1차", machine: "2호기", plan: 1150, actual: 1092, productivity: 498, productivityRate: 89.6, runTime: 18.4, fault: 2 },
+      { line: "CP 1차", machine: "3호기", plan: 1250, actual: 1243, productivity: 548, productivityRate: 94.1, runTime: 19.3, fault: 0 },
+      { line: "CP 2차", machine: "1호기", plan: 1250, actual: 1210, productivity: 515, productivityRate: 91.0, runTime: 18.9, fault: 1 },
+      { line: "CP 2차", machine: "2호기", plan: 1150, actual: 1075, productivity: 476, productivityRate: 87.4, runTime: 17.8, fault: 1 },
+      { line: "SP", machine: "1호기", plan: 1300, actual: 1296, productivity: 522, productivityRate: 92.8, runTime: 18.7, fault: 0 },
+      { line: "SP", machine: "2호기", plan: 1250, actual: 1208, productivity: 507, productivityRate: 90.5, runTime: 18.2, fault: 0 },
+      { line: "4230라인", machine: "4230", plan: 1250, actual: 1277, productivity: 556, productivityRate: 94.3, runTime: 19.4, fault: 0 }
+    ];
+
+    const defaultNotices = [
+      { date: "2026-05-31", time: "10:35", line: "CP 1차", machine: "2호기", type: "설비", content: "투입 컨베이어 일시 정지, 생산 18분 지연", status: "조치완료" },
+      { date: "2026-05-31", time: "11:20", line: "CP 2차", machine: "2호기", type: "원료", content: "원료 투입 대기 발생, 계획 대비 75㎥ 부족", status: "진행중" },
+      { date: "2026-05-31", time: "15:30", line: "SP", machine: "2호기", type: "기타", content: "교대 인수인계 시 생산 조건 확인 요청", status: "확인필요" },
+      { date: "2026-05-30", time: "16:05", line: "CP 1차", machine: "1호기", type: "기타", content: "전일 점검 완료", status: "조치완료" },
+      { date: "2026-05-30", time: "17:40", line: "SP", machine: "1호기", type: "설비", content: "전일 발생 알람 미조치, 담당자 확인 필요", status: "확인필요" }
+    ];
+
+    const iotAlerts = [
+      { date: "2026-05-31", time: "10:42", line: "CP 1차", machine: "2호기", sensor: "투입 컨베이어 진동", message: "기준값 초과 감지. 베어링 상태 확인 필요", level: "위험", status: "미확인" },
+      { date: "2026-05-31", time: "11:18", line: "CP 2차", machine: "2호기", sensor: "원료 호퍼 레벨", message: "저레벨 지속 12분. 원료 투입 대기 가능성", level: "주의", status: "미확인" },
+      { date: "2026-05-31", time: "13:05", line: "CP 1차", machine: "1호기", sensor: "모터 온도", message: "상한 접근. 냉각팬 동작 상태 확인", level: "주의", status: "진행중" },
+      { date: "2026-05-31", time: "15:20", line: "SP", machine: "1호기", sensor: "배출부 막힘 감지", message: "정상 범위 복귀", level: "정상", status: "조치완료" },
+      { date: "2026-05-30", time: "09:10", line: "SP", machine: "2호기", sensor: "온도", message: "전일 온도 알람 미확인", level: "주의", status: "미확인" },
+      { date: "2026-05-30", time: "14:30", line: "CP 2차", machine: "1호기", sensor: "전류", message: "전일 전류 알람 담당자 확인 완료", level: "주의", status: "담당자 확인" }
+    ];
+
+    const machinesByLine = {
+      "CP 1차": ["1호기", "2호기", "3호기"],
+      "CP 2차": ["1호기", "2호기"],
+      "SP": ["1호기", "2호기"],
+      "4230라인": ["4230"]
+    };
+
+    const rowStorageKey = "yangjuProductionRows";
+    const noticeStorageKey = "yangjuProductionNotices";
+    const dateStorageKey = "yangjuDashboardDate";
+    const siteStorageKey = "selectedProductionSite";
+    const siteFactors = {
+      "양주": 1,
+      "연천": 0.82,
+      "화성": 1.14,
+      "용인": 0.93,
+      "인천": 1.06,
+      "안성": 0.88,
+      "예산": 0.97
+    };
+
+    function standardProductivity(row) {
+      return row.runTime ? row.plan / row.runTime : row.productivity;
+    }
+
+    function normalizeRows(sourceRows) {
+      return sourceRows.map(row => {
+        const standard = standardProductivity(row);
+        const productivity = Math.round(row.runTime ? row.actual / row.runTime : row.productivity);
+        const productivityRate = standard ? productivity / standard * 100 : 0;
+        return {
+          ...row,
+          productivity,
+          productivityRate,
+          standardProductivity: standard
+        };
+      });
+    }
+
+    function loadRows() {
+      try {
+        return normalizeRows(JSON.parse(localStorage.getItem(rowStorageKey)) || structuredClone(defaultRows));
+      } catch {
+        return normalizeRows(structuredClone(defaultRows));
+      }
+    }
+
+    function loadNotices() {
+      try {
+        return JSON.parse(localStorage.getItem(noticeStorageKey)) || structuredClone(defaultNotices);
+      } catch {
+        return structuredClone(defaultNotices);
+      }
+    }
+
+    let selectedSite = localStorage.getItem(siteStorageKey) || "양주";
+    let rows = [];
+    let notices = [];
+
+    function dateFactor(dateValue) {
+      const source = dateValue || loadDashboardDate();
+      const digits = source.replaceAll("-", "").split("").reduce((sum, digit) => sum + Number(digit), 0);
+      return 0.94 + (digits % 13) / 100;
+    }
+
+    function siteAdjustedRows() {
+      const siteFactor = siteFactors[selectedSite] || 1;
+      const dayFactor = dateFactor();
+      return loadRows().map(row => {
+        const plan = Math.round(row.plan * siteFactor);
+        const actual = Math.round(row.actual * siteFactor * dayFactor);
+        const runTime = Number((row.runTime * (0.98 + (siteFactor % 0.08))).toFixed(1));
+        const standard = standardProductivity(row);
+        const productivity = Math.round(runTime ? actual / runTime : row.productivity);
+        const productivityRate = standard ? productivity / standard * 100 : 0;
+        return {
+          ...row,
+          plan,
+          actual,
+          runTime,
+          productivity,
+          productivityRate,
+          standardProductivity: standard,
+          fault: selectedSite === "양주" ? row.fault : Math.max(0, Math.round(row.fault * siteFactor))
+        };
+      });
+    }
+
+    function siteAdjustedNotices() {
+      const base = loadNotices();
+      const unresolved = base.filter(item => !isResolvedStatus(item.status));
+      if (selectedSite === "양주") return unresolved;
+      return unresolved.slice(0, 3).map(item => ({
+        ...item,
+        content: `[${selectedSite}] ${item.content}`
+      }));
+    }
+
+    function selectSite(site) {
+      selectedSite = site;
+      localStorage.setItem(siteStorageKey, site);
+      document.querySelectorAll(".nav-item[data-site]").forEach(item => {
+        item.classList.toggle("active", item.dataset.site === site);
+      });
+      document.getElementById("pageTitle").textContent = `${site}사업소 생산 대시보드`;
+      updateDashboard();
+    }
+
+    function loadDashboardDate() {
+      return localStorage.getItem(dateStorageKey) || "2026-05-31";
+    }
+
+    function syncDashboardDate() {
+      document.getElementById("dashboardDate").value = loadDashboardDate();
+    }
+
+    function updateDashboard() {
+      rows = siteAdjustedRows();
+      notices = siteAdjustedNotices();
+      renderProduction();
+      renderNotices();
+      renderIotAlerts();
+    }
+
+    const nf = new Intl.NumberFormat("ko-KR");
+
+    function rateClass(value) {
+      if (value < 95) return "danger";
+      if (value < 100) return "warn";
+      return "ok";
+    }
+
+    function isResolvedStatus(status) {
+      return status === "담당자 확인" || status === "조치완료";
+    }
+
+    function actualClass(row) {
+      if (row.actual < row.plan) return "actual-under";
+      if (row.actual > row.plan) return "actual-over";
+      return "actual-same";
+    }
+
+    function lineGroup(row) {
+      if (row.line === "CP 1차") return { key: "cp1", label: "CP 1차" };
+      if (row.line === "CP 2차") return { key: "cp2", label: "CP 2차" };
+      return { key: "sp", label: "SP / 4230" };
+    }
+
+    function renderProduction() {
+      const body = document.getElementById("productionBody");
+      let currentGroup = "";
+      body.innerHTML = rows.map(row => {
+        const group = lineGroup(row);
+        const achievement = row.plan ? row.actual / row.plan * 100 : 0;
+        const diff = row.actual - row.plan;
+        const cls = rateClass(achievement);
+        const needsNotice = achievement < 95;
+        const noticeHref = `yangju_notice_input.html?line=${encodeURIComponent(row.line)}&machine=${encodeURIComponent(row.machine)}&reason=${encodeURIComponent("계획 대비 달성률 95% 미만")}`;
+        const rowNotice = notices.find(item => item.line === row.line && item.machine === row.machine);
+        const noteText = rowNotice ? rowNotice.content : "";
+        const groupHeader = currentGroup === group.key ? "" : `<tr class="group-row ${group.key}"><td colspan="10">${group.label}</td></tr>`;
+        currentGroup = group.key;
+        return `
+          ${groupHeader}
+          <tr>
+            <td class="line-cell ${group.key}">${row.line}</td>
+            <td>${row.machine}</td>
+            <td>${nf.format(row.plan)}</td>
+            <td class="${actualClass(row)}">${nf.format(row.actual)}</td>
+            <td>${diff > 0 ? "+" : ""}${nf.format(diff)}</td>
+            <td><span class="status ${cls}">${achievement.toFixed(1)}%</span></td>
+            <td><span class="status ${rateClass(row.productivityRate)} productivity-pill">${nf.format(row.productivity)} ㎥/hr (${row.productivityRate.toFixed(1)}%)</span></td>
+            <td>${row.runTime.toFixed(1)}h</td>
+            <td>${row.fault}</td>
+            <td class="note-cell">
+              <a class="btn small ${needsNotice ? "primary" : "disabled"}" href="${noticeHref}">특이사항</a>
+              <span class="row-note ${noteText ? "" : "empty"}" title="${noteText}">${noteText || "작성 내용 없음"}</span>
+            </td>
+          </tr>
+        `;
+      }).join("");
+
+      renderKpis();
+      renderPeriods();
+      renderWeeklyChart();
+    }
+
+    function renderPeriods() {
+      const dayPlan = rows.reduce((sum, row) => sum + row.plan, 0);
+      const dayActual = rows.reduce((sum, row) => sum + row.actual, 0);
+      const avgProductivity = rows.reduce((sum, row) => sum + row.productivity, 0) / rows.length;
+      const periods = [
+        { name: "월간", multiplier: 24, actualFactor: 0.968 },
+        { name: "년간", multiplier: 288, actualFactor: 0.957 }
+      ];
+
+      document.getElementById("periodBody").innerHTML = periods.map(period => {
+        const plan = Math.round(dayPlan * period.multiplier);
+        const actual = Math.round(dayActual * period.multiplier * period.actualFactor);
+        const rate = plan ? actual / plan * 100 : 0;
+        const cls = rateClass(rate);
+        const statusText = cls === "ok" ? "정상" : cls === "warn" ? "주의" : "위험";
+        return `
+          <tr>
+            <td>${period.name}</td>
+            <td>${nf.format(plan)}㎥</td>
+            <td class="${actual < plan ? "actual-under" : actual > plan ? "actual-over" : "actual-same"}">${nf.format(actual)}㎥</td>
+            <td><span class="status ${cls}">${rate.toFixed(1)}%</span></td>
+            <td><span class="status ${rateClass(rows.reduce((sum, row) => sum + row.productivityRate, 0) / rows.length)} productivity-pill">${nf.format(Math.round(avgProductivity))} ㎥/hr</span></td>
+            <td><span class="status ${cls}">${statusText}</span></td>
+          </tr>
+        `;
+      }).join("");
+    }
+
+    function renderWeeklyChart() {
+      const totalActual = rows.reduce((sum, row) => sum + row.actual, 0);
+      const avgProductivity = rows.reduce((sum, row) => sum + row.productivity, 0) / rows.length;
+      const days = ["월", "화", "수", "목", "금", "토", "일"];
+      const productionFactors = [0.93, 0.97, 1.01, 0.96, 1.04, 0.99, 1.02];
+      const productivityFactors = [0.91, 0.95, 1.0, 0.94, 1.03, 0.98, 1.01];
+      const data = days.map((day, index) => ({
+        day,
+        production: Math.round(totalActual * productionFactors[index]),
+        productivity: Math.round(avgProductivity * productivityFactors[index])
+      }));
+      const width = 860;
+      const height = 280;
+      const pad = { top: 24, right: 44, bottom: 38, left: 66 };
+      const chartWidth = width - pad.left - pad.right;
+      const chartHeight = height - pad.top - pad.bottom;
+      const maxProduction = Math.max(...data.map(item => item.production)) * 1.12;
+      const maxProductivity = Math.max(...data.map(item => item.productivity)) * 1.18;
+      const slot = chartWidth / data.length;
+      const barWidth = slot * 0.48;
+      const x = index => pad.left + slot * index + slot / 2;
+      const yProduction = value => pad.top + chartHeight - (value / maxProduction * chartHeight);
+      const yProductivity = value => pad.top + chartHeight - (value / maxProductivity * chartHeight);
+      const linePoints = data.map((item, index) => `${x(index)},${yProductivity(item.productivity)}`).join(" ");
+      const gridLines = [0, .25, .5, .75, 1].map(ratio => {
+        const y = pad.top + chartHeight - chartHeight * ratio;
+        const value = Math.round(maxProduction * ratio);
+        return `
+          <line x1="${pad.left}" y1="${y}" x2="${width - pad.right}" y2="${y}" stroke="#e5ebf0"></line>
+          <text x="${pad.left - 10}" y="${y + 4}" text-anchor="end" font-size="11" fill="#667481">${nf.format(value)}</text>
+        `;
+      }).join("");
+
+      document.getElementById("weeklyChart").innerHTML = `
+        <svg viewBox="0 0 ${width} ${height}" width="100%" height="100%" role="img" aria-label="주간 생산실적 그래프">
+          <rect width="${width}" height="${height}" fill="#fff"></rect>
+          ${gridLines}
+          <line x1="${pad.left}" y1="${pad.top + chartHeight}" x2="${width - pad.right}" y2="${pad.top + chartHeight}" stroke="#aab7c3"></line>
+          <line x1="${pad.left}" y1="${pad.top}" x2="${pad.left}" y2="${pad.top + chartHeight}" stroke="#aab7c3"></line>
+          ${data.map((item, index) => {
+            const barHeight = pad.top + chartHeight - yProduction(item.production);
+            const bx = x(index) - barWidth / 2;
+            return `
+              <rect x="${bx}" y="${yProduction(item.production)}" width="${barWidth}" height="${barHeight}" rx="4" fill="#1f6fb2" opacity="0.82"></rect>
+              <text x="${x(index)}" y="${yProduction(item.production) - 7}" text-anchor="middle" font-size="11" fill="#263442">${nf.format(item.production)}</text>
+              <text x="${x(index)}" y="${height - 14}" text-anchor="middle" font-size="12" fill="#405160" font-weight="700">${item.day}</text>
+            `;
+          }).join("")}
+          <polyline points="${linePoints}" fill="none" stroke="#18855b" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"></polyline>
+          ${data.map((item, index) => `
+            <circle cx="${x(index)}" cy="${yProductivity(item.productivity)}" r="5" fill="#18855b" stroke="#fff" stroke-width="2"></circle>
+            <text x="${x(index)}" y="${yProductivity(item.productivity) - 11}" text-anchor="middle" font-size="11" fill="#18855b" font-weight="800">${nf.format(item.productivity)}</text>
+          `).join("")}
+          <text x="${pad.left}" y="17" font-size="12" fill="#667481">생산량(㎥)</text>
+          <text x="${width - pad.right}" y="17" text-anchor="end" font-size="12" fill="#18855b">생산성(㎥/hr)</text>
+        </svg>
+      `;
+    }
+
+    function renderKpis() {
+      const totalPlan = rows.reduce((sum, row) => sum + row.plan, 0);
+      const totalActual = rows.reduce((sum, row) => sum + row.actual, 0);
+      const totalFault = rows.reduce((sum, row) => sum + row.fault, 0);
+      const avgProductivity = rows.reduce((sum, row) => sum + row.productivity, 0) / rows.length;
+      const avgProductivityRate = rows.reduce((sum, row) => sum + row.productivityRate, 0) / rows.length;
+      const avgRunTime = rows.reduce((sum, row) => sum + row.runTime, 0) / rows.length;
+      const achievement = totalPlan ? totalActual / totalPlan * 100 : 0;
+      const statusClass = rateClass(achievement);
+
+      document.getElementById("kpiRate").textContent = `${achievement.toFixed(1)}%`;
+      document.getElementById("kpiPlan").textContent = nf.format(totalPlan);
+      document.getElementById("kpiActual").textContent = nf.format(totalActual);
+      document.getElementById("kpiProductivity").textContent = `${nf.format(Math.round(avgProductivity))} ㎥/hr`;
+      const productivityRateEl = document.getElementById("kpiProductivityRate");
+      productivityRateEl.textContent = `${avgProductivityRate.toFixed(1)}%`;
+      productivityRateEl.className = `status ${rateClass(avgProductivityRate)}`;
+      document.getElementById("kpiRunTime").textContent = `${avgRunTime.toFixed(1)}h`;
+      document.getElementById("kpiFault").textContent = `${totalFault}건`;
+
+      const faultStatus = document.getElementById("faultStatus");
+      faultStatus.textContent = totalFault >= 3 ? "주의" : "정상";
+      faultStatus.className = `status ${totalFault >= 3 ? "warn" : "ok"}`;
+
+      const totalStatus = document.getElementById("totalStatus");
+      totalStatus.textContent = statusClass === "danger" ? "위험" : statusClass === "warn" ? "주의" : "정상";
+      totalStatus.className = `status ${statusClass}`;
+    }
+
+    function renderNotices() {
+      const order = { "미확인": 1, "진행중": 2, "확인필요": 3, "담당자 확인": 4, "조치완료": 5 };
+      const sorted = [...notices].sort((a, b) => order[a.status] - order[b.status]);
+      document.getElementById("noticeList").innerHTML = sorted.map(item => {
+        const cls = item.status === "조치완료" ? "done" : item.status === "확인필요" ? "check" : "";
+        return `
+          <div class="notice ${cls}">
+            <div class="notice-top">
+              <span>${item.time} · ${item.line} ${item.machine} · ${item.type}</span>
+              <span>${item.status}</span>
+            </div>
+            <div class="notice-body">${item.content}</div>
+          </div>
+        `;
+      }).join("");
+    }
+
+    function renderIotAlerts() {
+      const today = loadDashboardDate();
+      const visibleAlerts = iotAlerts.filter(item => !isResolvedStatus(item.status));
+      const todayAlerts = visibleAlerts.filter(item => item.date === today);
+      const equipment = [...new Set(visibleAlerts.map(item => `${item.line} ${item.machine}`))];
+      document.getElementById("iotSummary").innerHTML = `
+        <div>
+          <div class="helper">금일 알람 횟수</div>
+          <div class="iot-count">${todayAlerts.length}건</div>
+        </div>
+        <div class="iot-equipment">
+          <strong>표시 설비</strong><br>
+          ${equipment.length ? equipment.join(", ") : "표시할 알람 없음"}
+        </div>
+      `;
+
+      document.getElementById("iotAlertList").innerHTML = visibleAlerts.map(item => {
+        const cls = item.level === "위험" ? "danger" : item.level === "정상" ? "ok" : "";
+        const statusClass = item.level === "위험" ? "danger" : item.level === "정상" ? "ok" : "warn";
+        return `
+          <div class="iot-alert ${cls}">
+            <div class="iot-time">${item.time}</div>
+            <div>
+              <div class="iot-title">${item.date} · ${item.line} ${item.machine} · ${item.sensor}</div>
+              <div class="iot-detail">${item.message} · ${item.status}</div>
+            </div>
+            <span class="status ${statusClass}">${item.level}</span>
+          </div>
+        `;
+      }).join("") || `<div class="notice done"><div class="notice-body">표시할 IoT 센서 알람이 없습니다.</div></div>`;
+    }
+
+    document.getElementById("resetBtn").addEventListener("click", () => {
+      rows = structuredClone(defaultRows);
+      rows = normalizeRows(rows);
+      notices = structuredClone(defaultNotices);
+      localStorage.setItem(rowStorageKey, JSON.stringify(rows));
+      localStorage.setItem(noticeStorageKey, JSON.stringify(notices));
+      localStorage.setItem(dateStorageKey, "2026-05-31");
+      localStorage.setItem(siteStorageKey, selectedSite);
+      syncDashboardDate();
+      updateDashboard();
+    });
+
+    document.querySelectorAll(".nav-item[data-site]").forEach(item => {
+      item.addEventListener("click", () => selectSite(item.dataset.site));
+    });
+
+    document.getElementById("dashboardDate").addEventListener("change", event => {
+      localStorage.setItem(dateStorageKey, event.target.value);
+      updateDashboard();
+    });
+
+    window.addEventListener("storage", () => {
+      selectedSite = localStorage.getItem(siteStorageKey) || selectedSite;
+      syncDashboardDate();
+      updateDashboard();
+    });
+
+    syncDashboardDate();
+    selectSite(selectedSite);
+  </script>
+</body>
+</html>
