@@ -1,0 +1,327 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>양주사업소 특이사항 입력</title>
+  <style>
+    :root {
+      --bg: #f4f6f8;
+      --panel: #fff;
+      --line: #d9e0e7;
+      --text: #17202a;
+      --muted: #667481;
+      --blue: #1f6fb2;
+      --green: #18855b;
+      --amber: #b7791f;
+      --red: #c2413a;
+      --shadow: 0 1px 2px rgba(15, 23, 42, .08);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: "Malgun Gothic", "Apple SD Gothic Neo", Arial, sans-serif;
+      font-size: 14px;
+      letter-spacing: 0;
+    }
+
+    main {
+      max-width: 1040px;
+      margin: 0 auto;
+      padding: 22px;
+    }
+
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+
+    h1 { margin: 0 0 6px; font-size: 24px; }
+    h2 { margin: 0; font-size: 17px; }
+    .subtitle, .helper { color: var(--muted); font-size: 13px; }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      height: 36px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: #fff;
+      color: #263442;
+      padding: 0 12px;
+      cursor: pointer;
+      font-weight: 700;
+      text-decoration: none;
+    }
+
+    .btn.primary { background: var(--blue); border-color: var(--blue); color: #fff; }
+
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: var(--shadow);
+      padding: 14px;
+      margin-bottom: 14px;
+    }
+
+    .section-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .field { display: grid; gap: 5px; }
+    .field.full { grid-column: 1 / -1; }
+    label { color: #405160; font-size: 12px; font-weight: 800; }
+
+    input, select, textarea {
+      width: 100%;
+      min-height: 36px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: #fff;
+      padding: 8px 10px;
+      color: var(--text);
+      font: inherit;
+    }
+
+    textarea {
+      min-height: 96px;
+      resize: vertical;
+    }
+
+    .actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+      margin-top: 12px;
+      flex-wrap: wrap;
+    }
+
+    .toast {
+      min-height: 24px;
+      color: var(--green);
+      font-weight: 800;
+    }
+
+    .notice-list {
+      display: grid;
+      gap: 8px;
+    }
+
+    .notice {
+      border: 1px solid var(--line);
+      border-left: 4px solid var(--amber);
+      border-radius: 7px;
+      padding: 10px;
+      background: #fff;
+    }
+
+    .notice.done { border-left-color: var(--green); }
+    .notice.check { border-left-color: var(--red); }
+
+    .notice-top {
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 5px;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .notice-body { line-height: 1.45; }
+
+    @media (max-width: 640px) {
+      main { padding: 14px; }
+      .topbar { align-items: flex-start; flex-direction: column; }
+      .form-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <div class="topbar">
+      <div>
+        <h1>양주사업소 특이사항 입력</h1>
+        <div class="subtitle">등록한 특이사항은 메인 대시보드 특이사항 영역에 표시됩니다.</div>
+      </div>
+      <a class="btn" href="yangju_production_dashboard_sample.html">대시보드로 돌아가기</a>
+    </div>
+
+    <section class="card">
+      <div class="section-head">
+        <div>
+          <h2>특이사항 등록</h2>
+          <div class="helper">진행중, 확인필요 상태는 메인 화면에서 우선 표시됩니다.</div>
+        </div>
+      </div>
+
+      <form id="noticeForm">
+        <div class="form-grid">
+          <div class="field">
+            <label for="noticeDate">기준일</label>
+            <input id="noticeDate" type="date" value="2026-05-31" required>
+          </div>
+          <div class="field">
+            <label for="noticeTime">시간</label>
+            <input id="noticeTime" type="time" value="10:35" required>
+          </div>
+          <div class="field">
+            <label for="noticeLine">라인</label>
+            <select id="noticeLine">
+              <option>CP 1차</option>
+              <option>CP 2차</option>
+              <option>SP</option>
+              <option>4230라인</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="noticeMachine">설비</label>
+            <input id="noticeMachine" value="2호기" required>
+          </div>
+          <div class="field">
+            <label for="noticeType">유형</label>
+            <select id="noticeType">
+              <option>설비</option>
+              <option>품질</option>
+              <option>원료</option>
+              <option>안전</option>
+              <option>기타</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="noticeStatus">조치상태</label>
+            <select id="noticeStatus">
+              <option>진행중</option>
+              <option>확인필요</option>
+              <option>담당자 확인</option>
+              <option>조치완료</option>
+            </select>
+          </div>
+          <div class="field full">
+            <label for="noticeContent">내용</label>
+            <textarea id="noticeContent" required>투입 컨베이어 일시 정지, 생산 18분 지연</textarea>
+          </div>
+          <div class="field full">
+            <label for="writerInput">입력자</label>
+            <input id="writerInput" value="생산담당자" required>
+          </div>
+        </div>
+        <div class="actions">
+          <span class="toast" id="toast"></span>
+          <button class="btn primary" type="submit">등록 후 반영</button>
+        </div>
+      </form>
+    </section>
+
+    <section class="card">
+      <div class="section-head">
+        <h2>등록된 특이사항</h2>
+        <span class="helper">브라우저 저장값 기준</span>
+      </div>
+      <div class="notice-list" id="noticeList"></div>
+    </section>
+  </main>
+
+  <script>
+    const storageKey = "yangjuProductionNotices";
+    const dateStorageKey = "yangjuDashboardDate";
+    const defaultNotices = [
+      { time: "10:35", line: "CP 1차", machine: "2호기", type: "설비", content: "투입 컨베이어 일시 정지, 생산 18분 지연", status: "조치완료" },
+      { time: "11:20", line: "CP 2차", machine: "2호기", type: "원료", content: "원료 투입 대기 발생, 계획 대비 75㎥ 부족", status: "진행중" },
+      { time: "15:30", line: "SP", machine: "2호기", type: "기타", content: "교대 인수인계 시 생산 조건 확인 요청", status: "확인필요" }
+    ];
+
+    function loadNotices() {
+      try {
+        return JSON.parse(localStorage.getItem(storageKey)) || structuredClone(defaultNotices);
+      } catch {
+        return structuredClone(defaultNotices);
+      }
+    }
+
+    let notices = loadNotices();
+
+    function loadDashboardDate() {
+      return localStorage.getItem(dateStorageKey) || "2026-05-31";
+    }
+
+    function saveNotices() {
+      localStorage.setItem(storageKey, JSON.stringify(notices));
+    }
+
+    function renderNotices() {
+      const order = { "진행중": 1, "확인필요": 2, "조치완료": 3 };
+      const sorted = [...notices].sort((a, b) => order[a.status] - order[b.status]);
+      document.getElementById("noticeList").innerHTML = sorted.map(item => {
+        const cls = item.status === "조치완료" ? "done" : item.status === "확인필요" ? "check" : "";
+        return `
+          <div class="notice ${cls}">
+            <div class="notice-top">
+              <span>${item.time} · ${item.line} ${item.machine} · ${item.type}</span>
+              <span>${item.status}</span>
+            </div>
+            <div class="notice-body">${item.content}</div>
+          </div>
+        `;
+      }).join("");
+    }
+
+    document.getElementById("noticeForm").addEventListener("submit", event => {
+      event.preventDefault();
+      notices.unshift({
+        date: document.getElementById("noticeDate").value,
+        time: document.getElementById("noticeTime").value,
+        line: document.getElementById("noticeLine").value,
+        machine: document.getElementById("noticeMachine").value,
+        type: document.getElementById("noticeType").value,
+        content: document.getElementById("noticeContent").value,
+        status: document.getElementById("noticeStatus").value,
+        writer: document.getElementById("writerInput").value,
+        updatedAt: new Date().toLocaleString("ko-KR")
+      });
+      saveNotices();
+      localStorage.setItem(dateStorageKey, document.getElementById("noticeDate").value);
+      renderNotices();
+      document.getElementById("toast").textContent = "등록되었습니다.";
+      setTimeout(() => document.getElementById("toast").textContent = "", 1800);
+    });
+
+    function applyQueryParams() {
+      const params = new URLSearchParams(window.location.search);
+      const line = params.get("line");
+      const machine = params.get("machine");
+      const reason = params.get("reason");
+
+      if (line) document.getElementById("noticeLine").value = line;
+      if (machine) document.getElementById("noticeMachine").value = machine;
+      if (reason) {
+        document.getElementById("noticeContent").value = `${reason}: `;
+        document.getElementById("noticeContent").focus();
+      }
+    }
+
+    applyQueryParams();
+    document.getElementById("noticeDate").value = loadDashboardDate();
+    renderNotices();
+  </script>
+</body>
+</html>

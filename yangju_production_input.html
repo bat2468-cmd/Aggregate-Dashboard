@@ -1,0 +1,677 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>양주사업소 생산실적 입력</title>
+  <style>
+    :root {
+      --bg: #f4f6f8;
+      --panel: #fff;
+      --line: #d9e0e7;
+      --text: #17202a;
+      --muted: #667481;
+      --blue: #1f6fb2;
+      --green: #18855b;
+      --amber: #b7791f;
+      --red: #c2413a;
+      --actual-over: #1f6fb2;
+      --actual-under: #c2413a;
+      --soft-red: #fdeceb;
+      --soft-amber: #fff4d8;
+      --shadow: 0 1px 2px rgba(15, 23, 42, .08);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: "Malgun Gothic", "Apple SD Gothic Neo", Arial, sans-serif;
+      font-size: 14px;
+      letter-spacing: 0;
+    }
+
+    main {
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 22px;
+    }
+
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+
+    h1 { margin: 0 0 6px; font-size: 24px; }
+    h2 { margin: 0; font-size: 17px; }
+    .subtitle, .helper { color: var(--muted); font-size: 13px; }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      height: 36px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: #fff;
+      color: #263442;
+      padding: 0 12px;
+      cursor: pointer;
+      font-weight: 700;
+      text-decoration: none;
+    }
+
+    .btn.primary { background: var(--blue); border-color: var(--blue); color: #fff; }
+    .btn.secondary { background: #eef3f7; }
+    .btn.disabled {
+      pointer-events: none;
+      color: #9aa6b2;
+      background: #eef1f4;
+      border-color: #d7dee5;
+    }
+
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: var(--shadow);
+      padding: 14px;
+      margin-bottom: 14px;
+    }
+
+    .section-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .field { display: grid; gap: 5px; }
+    label { color: #405160; font-size: 12px; font-weight: 800; }
+
+    input, select {
+      width: 100%;
+      min-height: 36px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: #fff;
+      padding: 8px 10px;
+      color: var(--text);
+      font: inherit;
+    }
+
+    input[readonly] {
+      background: #f1f4f7;
+      color: #556574;
+    }
+
+    .actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+      margin-top: 12px;
+      flex-wrap: wrap;
+    }
+
+    .table-wrap {
+      overflow-x: auto;
+      border: 1px solid var(--line);
+      border-radius: 7px;
+    }
+
+    table {
+      width: 100%;
+      min-width: 840px;
+      border-collapse: collapse;
+      background: #fff;
+    }
+
+    th, td {
+      border-bottom: 1px solid var(--line);
+      padding: 9px 10px;
+      text-align: right;
+      white-space: nowrap;
+    }
+
+    th {
+      background: #edf2f6;
+      color: #364756;
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    td:first-child, td:nth-child(2), th:first-child, th:nth-child(2) { text-align: left; }
+    tr:last-child td { border-bottom: 0; }
+
+    .status {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      height: 24px;
+      border-radius: 999px;
+      padding: 0 9px;
+      font-size: 12px;
+      font-weight: 800;
+      background: #e8f6ef;
+      color: var(--green);
+    }
+
+    .toast {
+      min-height: 24px;
+      color: var(--green);
+      font-weight: 800;
+    }
+
+    .actual-over {
+      color: var(--actual-over);
+      font-weight: 800;
+    }
+
+    .actual-under {
+      color: var(--actual-under);
+      font-weight: 800;
+    }
+
+    .actual-same {
+      color: var(--text);
+      font-weight: 800;
+    }
+
+    .rate-pill {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 132px;
+      height: 24px;
+      border-radius: 999px;
+      padding: 0 9px;
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .rate-pill.ok {
+      color: var(--green);
+      background: #e8f6ef;
+    }
+
+    .rate-pill.warn {
+      color: var(--amber);
+      background: var(--soft-amber);
+    }
+
+    .rate-pill.danger {
+      color: var(--red);
+      background: var(--soft-red);
+    }
+
+    .exception-box {
+      display: none;
+      border: 1px solid #f2c2bd;
+      border-left: 4px solid var(--red);
+      border-radius: 8px;
+      background: var(--soft-red);
+      padding: 12px;
+      margin-top: 12px;
+    }
+
+    .exception-box.active {
+      display: block;
+    }
+
+    .exception-title {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 10px;
+      font-weight: 800;
+      color: var(--red);
+    }
+
+    textarea {
+      width: 100%;
+      min-height: 78px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: #fff;
+      padding: 8px 10px;
+      color: var(--text);
+      font: inherit;
+      resize: vertical;
+    }
+
+    @media (max-width: 860px) {
+      .topbar { align-items: flex-start; flex-direction: column; }
+      .form-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+
+    @media (max-width: 560px) {
+      main { padding: 14px; }
+      .form-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <div class="topbar">
+      <div>
+        <h1>양주사업소 생산실적 입력</h1>
+        <div class="subtitle">1차 운영은 수기 입력 방식이며 저장 후 대시보드에 반영됩니다.</div>
+      </div>
+      <a class="btn" href="yangju_production_dashboard_sample.html">대시보드로 돌아가기</a>
+    </div>
+
+    <section class="card">
+      <div class="section-head">
+        <div>
+          <h2>실적 입력</h2>
+          <div class="helper">생산성은 실적 ÷ 가동시간으로 자동 계산하고, 달성률은 계획 대비로 표시합니다.</div>
+        </div>
+        <span class="status">수기 입력</span>
+      </div>
+
+      <form id="productionForm">
+        <div class="form-grid">
+          <div class="field">
+            <label for="dateInput">기준일</label>
+            <input id="dateInput" type="date" value="2026-05-31" required>
+          </div>
+          <div class="field">
+            <label for="lineInput">라인</label>
+            <select id="lineInput" required>
+              <option>CP 1차</option>
+              <option>CP 2차</option>
+              <option>SP</option>
+              <option>4230라인</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="machineInput">설비</label>
+            <select id="machineInput" required></select>
+          </div>
+          <div class="field">
+            <label for="planInput">계획(㎥)</label>
+            <input id="planInput" type="number" min="0" step="1" readonly required>
+          </div>
+          <div class="field">
+            <label for="actualInput">실적(㎥)</label>
+            <input id="actualInput" type="number" min="0" step="1" required>
+          </div>
+          <div class="field">
+            <label for="productivityInput">생산성(㎥/hr)</label>
+            <input id="productivityInput" type="number" min="0" step="1" readonly>
+          </div>
+          <div class="field">
+            <label for="productivityRateInput">생산성 달성률(%)</label>
+            <input id="productivityRateInput" type="number" min="0" step="0.1" readonly>
+          </div>
+          <div class="field">
+            <label for="runTimeInput">가동시간(h)</label>
+            <input id="runTimeInput" type="number" min="0" step="0.1" required>
+          </div>
+          <div class="field">
+            <label for="downTimeInput">비가동시간(h)</label>
+            <input id="downTimeInput" type="number" min="0" step="0.1" value="0">
+          </div>
+          <div class="field">
+            <label for="faultInput">Fault(건)</label>
+            <input id="faultInput" type="number" min="0" step="1" required>
+          </div>
+          <div class="field">
+            <label for="writerInput">입력자</label>
+            <input id="writerInput" value="생산담당자" required>
+          </div>
+          <div class="field">
+            <label for="roleInput">입력 권한</label>
+            <select id="roleInput">
+              <option value="user">담당자</option>
+              <option value="admin">관리자</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="adminCodeInput">관리자 코드</label>
+            <input id="adminCodeInput" type="password" placeholder="관리자만 계획 수정">
+          </div>
+        </div>
+
+        <div class="exception-box" id="exceptionBox">
+          <div class="exception-title">
+            <span>달성률 95% 미만: 특이사항 입력 필요</span>
+            <a class="btn primary" id="noticeLink" href="yangju_notice_input.html">특이사항 입력 화면</a>
+          </div>
+          <div class="form-grid">
+            <div class="field">
+              <label for="exceptionType">특이사항 유형</label>
+              <select id="exceptionType">
+                <option>설비</option>
+                <option>원료</option>
+                <option>품질</option>
+                <option>안전</option>
+                <option>기타</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="exceptionStatus">조치상태</label>
+              <select id="exceptionStatus">
+                <option>진행중</option>
+                <option>확인필요</option>
+                <option>담당자 확인</option>
+                <option>조치완료</option>
+              </select>
+            </div>
+            <div class="field" style="grid-column: 1 / -1;">
+              <label for="exceptionContent">특이사항 내용</label>
+              <textarea id="exceptionContent" placeholder="계획 대비 95% 미만 사유와 조치 내용을 입력하세요."></textarea>
+            </div>
+          </div>
+        </div>
+
+        <div class="actions">
+          <span class="toast" id="toast"></span>
+          <button class="btn secondary" type="button" id="loadSelectedBtn">선택값 불러오기</button>
+          <button class="btn primary" type="submit">저장 후 반영</button>
+        </div>
+      </form>
+    </section>
+
+    <section class="card">
+      <div class="section-head">
+        <h2>현재 입력 데이터</h2>
+        <span class="helper">저장된 값은 메인 대시보드에서 사용됩니다.</span>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>라인</th>
+              <th>설비</th>
+              <th>계획</th>
+              <th>실적</th>
+              <th>달성률</th>
+              <th>생산성</th>
+              <th>가동시간</th>
+              <th>비가동</th>
+              <th>Fault</th>
+              <th>수정시간</th>
+            </tr>
+          </thead>
+          <tbody id="dataBody"></tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const storageKey = "yangjuProductionRows";
+    const noticeStorageKey = "yangjuProductionNotices";
+    const dateStorageKey = "yangjuDashboardDate";
+    const defaultRows = [
+      { line: "CP 1차", machine: "1호기", plan: 1200, actual: 1185, productivity: 535, productivityRate: 93.2, runTime: 19.1, downTime: 0.9, fault: 1 },
+      { line: "CP 1차", machine: "2호기", plan: 1150, actual: 1092, productivity: 498, productivityRate: 89.6, runTime: 18.4, downTime: 1.6, fault: 2 },
+      { line: "CP 1차", machine: "3호기", plan: 1250, actual: 1243, productivity: 548, productivityRate: 94.1, runTime: 19.3, downTime: 0.7, fault: 0 },
+      { line: "CP 2차", machine: "1호기", plan: 1250, actual: 1210, productivity: 515, productivityRate: 91.0, runTime: 18.9, downTime: 1.1, fault: 1 },
+      { line: "CP 2차", machine: "2호기", plan: 1150, actual: 1075, productivity: 476, productivityRate: 87.4, runTime: 17.8, downTime: 2.2, fault: 1 },
+      { line: "SP", machine: "1호기", plan: 1300, actual: 1296, productivity: 522, productivityRate: 92.8, runTime: 18.7, downTime: 1.3, fault: 0 },
+      { line: "SP", machine: "2호기", plan: 1250, actual: 1208, productivity: 507, productivityRate: 90.5, runTime: 18.2, downTime: 1.8, fault: 0 },
+      { line: "4230라인", machine: "4230", plan: 1250, actual: 1277, productivity: 556, productivityRate: 94.3, runTime: 19.4, downTime: 0.6, fault: 0 }
+    ];
+
+    const machinesByLine = {
+      "CP 1차": ["1호기", "2호기", "3호기"],
+      "CP 2차": ["1호기", "2호기"],
+      "SP": ["1호기", "2호기"],
+      "4230라인": ["4230"]
+    };
+
+    const defaultNotices = [
+      { time: "10:35", line: "CP 1차", machine: "2호기", type: "설비", content: "투입 컨베이어 일시 정지, 생산 18분 지연", status: "조치완료" },
+      { time: "11:20", line: "CP 2차", machine: "2호기", type: "원료", content: "원료 투입 대기 발생, 계획 대비 75㎥ 부족", status: "진행중" },
+      { time: "15:30", line: "SP", machine: "2호기", type: "기타", content: "교대 인수인계 시 생산 조건 확인 요청", status: "확인필요" }
+    ];
+
+    const nf = new Intl.NumberFormat("ko-KR");
+    let rows = loadRows();
+
+    function standardProductivity(row) {
+      return row.runTime ? row.plan / row.runTime : row.productivity;
+    }
+
+    function normalizeRows(sourceRows) {
+      return sourceRows.map(row => {
+        const standard = standardProductivity(row);
+        const productivity = Math.round(row.runTime ? row.actual / row.runTime : row.productivity);
+        const productivityRate = standard ? productivity / standard * 100 : 0;
+        return {
+          ...row,
+          productivity,
+          productivityRate,
+          standardProductivity: standard
+        };
+      });
+    }
+
+    function rateClass(value) {
+      if (value < 95) return "danger";
+      if (value < 100) return "warn";
+      return "ok";
+    }
+
+    function loadRows() {
+      try {
+        return normalizeRows(JSON.parse(localStorage.getItem(storageKey)) || structuredClone(defaultRows));
+      } catch {
+        return normalizeRows(structuredClone(defaultRows));
+      }
+    }
+
+    function saveRows() {
+      localStorage.setItem(storageKey, JSON.stringify(rows));
+    }
+
+    function loadDashboardDate() {
+      return localStorage.getItem(dateStorageKey) || "2026-05-31";
+    }
+
+    function loadNotices() {
+      try {
+        return JSON.parse(localStorage.getItem(noticeStorageKey)) || structuredClone(defaultNotices);
+      } catch {
+        return structuredClone(defaultNotices);
+      }
+    }
+
+    function saveRequiredNotice(updated) {
+      const notices = loadNotices();
+      const now = new Date();
+      const time = now.toTimeString().slice(0, 5);
+      notices.unshift({
+        date: document.getElementById("dateInput").value,
+        time,
+        line: updated.line,
+        machine: updated.machine,
+        type: document.getElementById("exceptionType").value,
+        content: document.getElementById("exceptionContent").value.trim(),
+        status: document.getElementById("exceptionStatus").value,
+        writer: updated.writer,
+        updatedAt: now.toLocaleString("ko-KR"),
+        source: "생산실적 95% 미만"
+      });
+      localStorage.setItem(noticeStorageKey, JSON.stringify(notices));
+    }
+
+    function syncMachineOptions() {
+      const line = document.getElementById("lineInput").value;
+      document.getElementById("machineInput").innerHTML = machinesByLine[line].map(machine => `<option>${machine}</option>`).join("");
+    }
+
+    function selectedRow() {
+      const line = document.getElementById("lineInput").value;
+      const machine = document.getElementById("machineInput").value;
+      return rows.find(row => row.line === line && row.machine === machine);
+    }
+
+    function fillSelectedRow() {
+      const row = selectedRow();
+      if (!row) return;
+      document.getElementById("planInput").value = row.plan;
+      document.getElementById("actualInput").value = row.actual;
+      document.getElementById("runTimeInput").value = row.runTime;
+      document.getElementById("downTimeInput").value = row.downTime ?? 0;
+      document.getElementById("faultInput").value = row.fault;
+      document.getElementById("exceptionContent").value = "";
+      updatePlanLock();
+      updateAutoProductivity();
+      updateExceptionRequirement();
+    }
+
+    function isAdminMode() {
+      return document.getElementById("adminCodeInput").value === "sampyo1234";
+    }
+
+    function updatePlanLock() {
+      document.getElementById("planInput").readOnly = !isAdminMode();
+    }
+
+    function updateAutoProductivity() {
+      const row = selectedRow();
+      const actual = Number(document.getElementById("actualInput").value);
+      const runTime = Number(document.getElementById("runTimeInput").value);
+      const productivity = runTime ? actual / runTime : 0;
+      const plan = Number(document.getElementById("planInput").value);
+      const standard = runTime ? plan / runTime : (row ? standardProductivity(row) : productivity);
+      const productivityRate = standard ? productivity / standard * 100 : 0;
+
+      document.getElementById("productivityInput").value = Math.round(productivity);
+      document.getElementById("productivityRateInput").value = productivityRate.toFixed(1);
+    }
+
+    function currentAchievement() {
+      const plan = Number(document.getElementById("planInput").value);
+      const actual = Number(document.getElementById("actualInput").value);
+      return plan ? actual / plan * 100 : 100;
+    }
+
+    function updateExceptionRequirement() {
+      const line = document.getElementById("lineInput").value;
+      const machine = document.getElementById("machineInput").value;
+      const achievement = currentAchievement();
+      const needsException = achievement < 95;
+      const box = document.getElementById("exceptionBox");
+      const link = document.getElementById("noticeLink");
+      box.classList.toggle("active", needsException);
+      link.classList.toggle("disabled", !needsException);
+      link.href = `yangju_notice_input.html?line=${encodeURIComponent(line)}&machine=${encodeURIComponent(machine)}&reason=${encodeURIComponent("계획 대비 달성률 95% 미만")}`;
+      return needsException;
+    }
+
+    function renderTable() {
+      document.getElementById("dataBody").innerHTML = rows.map(row => {
+        const rate = row.plan ? row.actual / row.plan * 100 : 0;
+        const actualClass = row.actual < row.plan ? "actual-under" : row.actual > row.plan ? "actual-over" : "actual-same";
+        const productivityClass = rateClass(row.productivityRate);
+        return `
+          <tr>
+            <td>${row.line}</td>
+            <td>${row.machine}</td>
+            <td>${nf.format(row.plan)}㎥</td>
+            <td class="${actualClass}">${nf.format(row.actual)}㎥</td>
+            <td>${rate.toFixed(1)}%</td>
+            <td><span class="rate-pill ${productivityClass}">${nf.format(row.productivity)} ㎥/hr (${row.productivityRate.toFixed(1)}%)</span></td>
+            <td>${row.runTime.toFixed(1)}h</td>
+            <td>${Number(row.downTime ?? 0).toFixed(1)}h</td>
+            <td>${row.fault}</td>
+            <td>${row.updatedAt || "-"}</td>
+          </tr>
+        `;
+      }).join("");
+    }
+
+    document.getElementById("lineInput").addEventListener("change", () => {
+      syncMachineOptions();
+      fillSelectedRow();
+    });
+      document.getElementById("machineInput").addEventListener("change", fillSelectedRow);
+      document.getElementById("loadSelectedBtn").addEventListener("click", fillSelectedRow);
+    ["planInput", "actualInput"].forEach(id => {
+      document.getElementById(id).addEventListener("input", updateExceptionRequirement);
+    });
+    ["actualInput", "runTimeInput"].forEach(id => {
+      document.getElementById(id).addEventListener("input", () => {
+        updateAutoProductivity();
+        updateExceptionRequirement();
+      });
+    });
+    ["roleInput", "adminCodeInput"].forEach(id => {
+      document.getElementById(id).addEventListener("input", updatePlanLock);
+      document.getElementById(id).addEventListener("change", updatePlanLock);
+    });
+
+    document.getElementById("productionForm").addEventListener("submit", event => {
+      event.preventDefault();
+      const line = document.getElementById("lineInput").value;
+      const machine = document.getElementById("machineInput").value;
+      const actual = Number(document.getElementById("actualInput").value);
+      const runTime = Number(document.getElementById("runTimeInput").value);
+      const currentRow = selectedRow();
+      updateAutoProductivity();
+      const productivity = Number(document.getElementById("productivityInput").value);
+      const productivityRate = Number(document.getElementById("productivityRateInput").value);
+      const plan = isAdminMode() ? Number(document.getElementById("planInput").value) : (currentRow ? currentRow.plan : Number(document.getElementById("planInput").value));
+      const achievement = plan ? actual / plan * 100 : 100;
+      const needsException = achievement < 95;
+      const exceptionContent = document.getElementById("exceptionContent").value.trim();
+
+      if (needsException && !exceptionContent) {
+        document.getElementById("toast").textContent = "달성률 95% 미만은 특이사항을 입력해야 저장됩니다.";
+        document.getElementById("toast").style.color = "var(--red)";
+        document.getElementById("exceptionContent").focus();
+        return;
+      }
+
+      const updated = {
+        line,
+        machine,
+        plan,
+        actual,
+        productivity,
+        productivityRate,
+        standardProductivity: standardProductivity(currentRow || { productivity, productivityRate }),
+        runTime,
+        downTime: Number(document.getElementById("downTimeInput").value) || 0,
+        fault: Number(document.getElementById("faultInput").value),
+        writer: document.getElementById("writerInput").value,
+        updatedAt: new Date().toLocaleString("ko-KR")
+      };
+
+      const index = rows.findIndex(row => row.line === line && row.machine === machine);
+      if (index >= 0) rows[index] = updated;
+      saveRows();
+      localStorage.setItem(dateStorageKey, document.getElementById("dateInput").value);
+      if (needsException) saveRequiredNotice(updated);
+      renderTable();
+      document.getElementById("toast").textContent = "저장되었습니다.";
+      document.getElementById("toast").style.color = "var(--green)";
+      document.getElementById("exceptionContent").value = "";
+      updateExceptionRequirement();
+      setTimeout(() => document.getElementById("toast").textContent = "", 1800);
+    });
+
+    syncMachineOptions();
+    document.getElementById("dateInput").value = loadDashboardDate();
+    fillSelectedRow();
+    renderTable();
+  </script>
+</body>
+</html>
